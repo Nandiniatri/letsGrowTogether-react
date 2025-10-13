@@ -1,7 +1,10 @@
 import { useState } from "react"
 import { Button } from "../../components/Button"
+import { useContext } from "react"
+import { UserContext } from "../../context/UserContext"
 
 const Counter = () => {
+    const { count, handlePrev, handleNext } = useContext(UserContext);
 
     return (
         <div>
