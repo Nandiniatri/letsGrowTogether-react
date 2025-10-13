@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-const UserContext = createContext();
+export const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
     const handleButton = () => {
@@ -9,7 +9,7 @@ const UserProvider = ({ children }) => {
 
     return (
         <UserContext.Provider value={
-            handleButton
+            { handleButton }
         }>
             {children}
         </UserContext.Provider>
