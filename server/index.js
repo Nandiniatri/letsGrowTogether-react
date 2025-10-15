@@ -122,74 +122,72 @@
 
 
 
-
-
+// index.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import OpenAI from "openai";
 import { createClient } from "@supabase/supabase-js";
+import OpenAI from "openai";
 
 dotenv.config();
 
 const app = express();
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
-// --- Supabase Setup ---
+// Supabase client
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
-// --- OpenAI Setup ---
+// OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// --- Health Check ---
-app.get("/", (req, res) => {
-  res.send("✅ Server running successfully");
-});
-
-// --- Analyze Profile Route ---
-app.post("/analyze", async (req, res) => {
+// API route
+app.post("/chat", async (req, res) => {
   try {
-    const { profileText, targetRole } = req.body;
+    const { message, user_id } = req.body;
 
-    const prompt = `
-    You are an expert LinkedIn profile reviewer.
-    Review the following profile for the role of "${targetRole}".
-    Return JSON with these keys:
-    {
-      "score": (0-100),
-      "headline": "optimized short title",
-      "summary": "rewritten summary (2-3 lines)",
-      "suggestions": ["tip 1", "tip 2", "tip 3"]
+    if (!message) {
+      return res.status(400).json({ error: "Message is required" });
     }
 
-    LinkedIn Summary: """${profileText}"""
-    `;
-
+    // OpenAI call
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: message }],
     });
 
-    const data = JSON.parse(completion.choices[0].message.content);
+    const aiResponse = completion.choices[0].message.content;
 
-    // Optionally store in Supabase
-    await supabase.from("reviews").insert([
-      { role: targetRole, score: data.score, summary: data.summary },
+    // Insert into Supabase
+    const { data, error } = await supabase.from("chat_history").insert([
+      {
+        user_id: user_id || "anonymous",
+        message: message,
+        ai_response: aiResponse,
+      },
     ]);
 
-    res.json(data);
-  } catch (error) {
-    console.error("❌ Error:", error);
-    res.status(500).json({ error: "Something went wrong!" });
+    if (error) {
+      console.error("Supabase insert error:", error);
+    }
+
+    // Return AI response
+    res.json({ aiResponse });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Something went wrong" });
   }
 });
 
+// Start server
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
+
