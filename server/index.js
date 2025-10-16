@@ -1,295 +1,7 @@
-// // index.js
-// import express from "express";
-// import cors from "cors";
-// import dotenv from "dotenv";
-// import { createClient } from "@supabase/supabase-js";
-// import OpenAI from "openai";
-
-// dotenv.config();
-
-// const app = express();
-// app.use(cors());
-// app.use(express.json());
-
-// // Supabase client
-// const supabase = createClient(
-//   process.env.SUPABASE_URL,
-//   process.env.SUPABASE_ANON_KEY
-// );
-
-// // OpenAI client
-// const openai = new OpenAI({
-//   apiKey: process.env.OPENAI_API_KEY,
-// });
-
-// // API route
-// app.post("/chat", async (req, res) => {
-//   try {
-//     const { message, user_id } = req.body;
-
-//     if (!message) {
-//       return res.status(400).json({ error: "Message is required" });
-//     }
-
-//     // OpenAI call
-//     const completion = await openai.chat.completions.create({
-//       model: "gpt-3.5-turbo",
-//       messages: [{ role: "user", content: message }],
-//     });
-
-//     const aiResponse = completion.choices[0].message.content;
-
-//     // Insert into Supabase
-//     const { data, error } = await supabase.from("chat_history").insert([
-//       {
-//         user_id: user_id || "anonymous",
-//         message: message,
-//         ai_response: aiResponse,
-//       },
-//     ]);
-
-//     if (error) {
-//       console.error("Supabase insert error:", error);
-//     }
-
-//     // Return AI response
-//     res.json({ aiResponse });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: "Something went wrong" });
-//   }
-// });
-
-// // Start server
-// const PORT = process.env.PORT || 4000;
-// app.listen(PORT, () => {
-//   console.log(`Server running on http://localhost:${PORT}`);
-// });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // index.js
-// import express from "express";
-// import cors from "cors";
-// import dotenv from "dotenv";
-// import { createClient } from "@supabase/supabase-js";
-// import OpenAI from "openai";
-
-// dotenv.config();
-
-// const app = express();
-// app.use(cors());
-// app.use(express.json());
-
-// // Supabase client
-// const supabase = createClient(
-//   process.env.SUPABASE_URL,
-//   process.env.SUPABASE_ANON_KEY
-// );
-
-// // OpenAI client
-// const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-// // POST /chat route
-// app.post("/chat", async (req, res) => {
-//   try {
-//     const { email, role, profile_text } = req.body;
-
-//     if (!profile_text || !role || !email) {
-//       return res.status(400).json({ error: "email, role and profile_text are required" });
-//     }
-
-//     // OpenAI analysis
-//     const completion = await openai.chat.completions.create({
-//       model: "gpt-4o-mini",
-//       messages: [
-//         {
-//           role: "user",
-//           content: `Analyze this LinkedIn profile for role "${role}": ${profile_text}. Return score (0-100), headline suggestion, rewritten summary, and 3 improvement suggestions.`
-//         }
-//       ],
-//     });
-
-//     const aiContent = completion.choices[0].message.content;
-
-//     // Here we assume AI returns JSON string like:
-//     // { "score": 85, "headline": "...", "summary": "...", "suggestions": ["...", "...", "..."] }
-//     let aiResult;
-//     try {
-//       aiResult = JSON.parse(aiContent);
-//     } catch {
-//       aiResult = {
-//         score: 0,
-//         headline: "",
-//         summary: aiContent,
-//         suggestions: []
-//       };
-//     }
-
-//     // Insert into Supabase
-//     const { data, error } = await supabase.from("profile_reviews").insert([
-//       {
-//         email,
-//         role,
-//         profile_text,
-//         score: aiResult.score,
-//         suggestions: aiResult.suggestions
-//       }
-//     ]);
-
-//     if (error) {
-//       console.error("Supabase insert error:", error);
-//     }
-
-//     // Return AI response
-//     res.json({
-//       score: aiResult.score,
-//       headline: aiResult.headline,
-//       summary: aiResult.summary,
-//       suggestions: aiResult.suggestions
-//     });
-
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: "Something went wrong" });
-//   }
-// });
-
-// // Start server
-// const PORT = process.env.PORT || 4000;
-// app.listen(PORT, () => {
-//   console.log(`Server running on http://localhost:${PORT}`);
-// });
-
-
-
-
-
-
-
-
-// import express from "express";
-// import cors from "cors";
-// import dotenv from "dotenv";
-// import { createClient } from "@supabase/supabase-js";
-// import OpenAI from "openai";
-
-// dotenv.config();
-// const app = express();
-// app.use(cors());
-// app.use(express.json());
-
-// // Supabase setup
-// const supabase = createClient(
-//   process.env.SUPABASE_URL,
-//   process.env.SUPABASE_ANON_KEY
-// );
-
-// // OpenAI setup
-// const openai = new OpenAI({
-//   apiKey: process.env.OPENAI_API_KEY,
-// });
-
-// // Chat endpoint
-// app.post("/chat", async (req, res) => {
-//   try {
-//     const { email, role, profile_text } = req.body;
-
-//     if (!profile_text || !role) {
-//       return res
-//         .status(400)
-//         .json({ error: "Both role and profile_text are required" });
-//     }
-
-//     const prompt = `
-//     Analyze this LinkedIn About section for the role "${role}".
-//     Return JSON ONLY in this format:
-//     {
-//       "score": number (0-100),
-//       "headline": string,
-//       "summary": string,
-//       "suggestions": [string, string, string]
-//     }
-
-//     Profile:
-//     """${profile_text}"""
-//     `;
-
-//     // OpenAI response
-//     const completion = await openai.chat.completions.create({
-//       model: "gpt-3.5-turbo", // ✅ safer model
-//       messages: [{ role: "user", content: prompt }],
-//       temperature: 0.7,
-//     });
-
-//     const aiResponse = completion.choices[0].message.content;
-//     let aiResult;
-
-//     try {
-//       aiResult = JSON.parse(aiResponse);
-//     } catch {
-//       console.warn("AI returned non-JSON, using fallback");
-//       aiResult = {
-//         score: 0,
-//         headline: "No headline generated",
-//         summary: aiResponse,
-//         suggestions: [],
-//       };
-//     }
-
-//     // Save in Supabase
-//     const { error: insertError } = await supabase
-//       .from("profile_reviews")
-//       .insert([
-//         {
-//           email: email || "anonymous@example.com",
-//           role,
-//           profile_text,
-//           score: aiResult.score,
-//           suggestions: aiResult.suggestions,
-//         },
-//       ]);
-
-//     if (insertError) console.error("Supabase insert error:", insertError);
-
-//     res.json(aiResult);
-//   } catch (err) {
-//     console.error("❌ Error in /chat:", err.message);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// });
-
-// // Server start
-// const PORT = process.env.PORT || 4000;
-// app.listen(PORT, () =>
-//   console.log(`✅ Server running on http://localhost:${PORT}`)
-// );
-
-
-
-
-
-
-
-
-
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import OpenAI from "openai";
+import fetch from "node-fetch"; // DeepSeek API call ke liye
 import { createClient } from "@supabase/supabase-js";
 
 dotenv.config();
@@ -297,9 +9,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ENV
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+// Connect Supabase
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 // Route: POST /analyze
 app.post("/analyze", async (req, res) => {
@@ -307,40 +18,63 @@ app.post("/analyze", async (req, res) => {
 
   if (!profileText) return res.status(400).json({ error: "Profile text required" });
 
+  const prompt = `
+  You are a LinkedIn Profile Coach. Analyze the following profile text for role: ${targetRole}.
+  Give:
+  1. Overall score (0-100)
+  2. 3 actionable suggestions for improvement
+  3. A rewritten headline (max 120 chars)
+  4. A rewritten 'About' summary (3-4 sentences)
+
+  Profile:
+  """${profileText}"""
+  Return JSON like:
+  { "score": 85, "suggestions": ["...", "...", "..."], "headline": "...", "summary": "..." }
+  `;
+
   try {
-    const prompt = `
-    You are a LinkedIn Profile Coach. Analyze the following profile text for role: ${targetRole}.
-    Give:
-    1. Overall score (0-100)
-    2. 3 actionable suggestions for improvement
-    3. A rewritten headline (max 120 chars)
-    4. A rewritten 'About' summary (3-4 sentences)
-
-    Profile:
-    """${profileText}"""
-    Return JSON like:
-    { "score": 85, "suggestions": ["...", "...", "..."], "headline": "...", "summary": "..." }
-    `;
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // free-tier works with this or GPT-3.5-turbo
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7,
+    // 🔹 DeepSeek API call
+    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+      }),
     });
 
-    const raw = completion.choices[0].message.content;
-    const parsed = JSON.parse(raw);
+    const data = await response.json();
+    const raw = data?.choices?.[0]?.message?.content || "{}";
 
-    // Save in Supabase
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      parsed = { score: 0, suggestions: ["Parsing failed"], headline: "", summary: raw };
+    }
+
+    // 🔹 Save to Supabase
     await supabase.from("profile_reviews").insert([
-      { email, role: targetRole, profile_text: profileText, score: parsed.score, suggestions: parsed },
+      {
+        email,
+        role: targetRole,
+        profile_text: profileText,
+        score: parsed.score,
+        suggestions: parsed,
+      },
     ]);
 
     res.json(parsed);
   } catch (err) {
-    console.error(err);
+    console.error("Error:", err);
     res.status(500).json({ error: "Failed to analyze profile" });
   }
 });
 
-app.listen(4000, () => console.log("Server running on http://localhost:4000"));
+app.listen(process.env.PORT, () =>
+  console.log(`✅ Server running on http://localhost:${process.env.PORT}`)
+);
