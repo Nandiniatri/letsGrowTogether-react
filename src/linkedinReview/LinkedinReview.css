@@ -1,0 +1,81 @@
+.linkedin-review-container {
+  max-width: 700px;
+  margin: 40px auto;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: "Poppins", sans-serif;
+}
+
+.title {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 20px;
+  color: #0077b5;
+}
+
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 15px;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #0077b5;
+}
+
+.analyze-btn {
+  background: #0077b5;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.analyze-btn:hover {
+  background: #005f8a;
+}
+
+.error-msg {
+  margin-top: 15px;
+  color: #ff4d4d;
+  text-align: center;
+  font-weight: 500;
+}
+
+.ai-result {
+  margin-top: 30px;
+  background: #f8faff;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e1e9f0;
+}
+
+.ai-result h2 {
+  color: #0077b5;
+}
+
+.suggestions ul {
+  margin-top: 10px;
+  padding-left: 20px;
+}

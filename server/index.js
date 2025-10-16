@@ -188,23 +188,22 @@ import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
 
 dotenv.config();
-
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Supabase client
+// Supabase setup
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
-// OpenAI client
+// OpenAI setup
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// POST /chat route
+// Chat endpoint
 app.post("/chat", async (req, res) => {
   try {
     const { email, role, profile_text } = req.body;
@@ -215,7 +214,6 @@ app.post("/chat", async (req, res) => {
         .json({ error: "Both role and profile_text are required" });
     }
 
-    // OpenAI prompt
     const prompt = `
     Analyze this LinkedIn About section for the role "${role}".
     Return JSON ONLY in this format:
@@ -230,8 +228,9 @@ app.post("/chat", async (req, res) => {
     """${profile_text}"""
     `;
 
+    // OpenAI response
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-3.5-turbo", // ✅ safer model
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
     });
@@ -241,7 +240,7 @@ app.post("/chat", async (req, res) => {
 
     try {
       aiResult = JSON.parse(aiResponse);
-    } catch (err) {
+    } catch {
       console.warn("AI returned non-JSON, using fallback");
       aiResult = {
         score: 0,
@@ -268,13 +267,13 @@ app.post("/chat", async (req, res) => {
 
     res.json(aiResult);
   } catch (err) {
-    console.error("Error:", err);
-    res.status(500).json({ error: "Something went wrong" });
+    console.error("❌ Error in /chat:", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-// Start server
+// Server start
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-});
+app.listen(PORT, () =>
+  console.log(`✅ Server running on http://localhost:${PORT}`)
+);
