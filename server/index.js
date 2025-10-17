@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import fetch from "node-fetch"; // DeepSeek API call ke liye
 import { createClient } from "@supabase/supabase-js";
 
-dotenv.config();
+dotenv.config(); 
 const app = express();
 app.use(cors());
 app.use(express.json());
