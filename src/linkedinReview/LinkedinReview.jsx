@@ -14,7 +14,7 @@ function App() {
     }
     setError("");
     setLoading(true);
-    setFeedback(null); 
+    setFeedback(null);  
 
     try {
       // abhi LinkedIn se data fetch nahi kar rahe — mock karenge
