@@ -218,6 +218,15 @@
 
 
 
+
+
+
+
+
+
+
+
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -273,23 +282,17 @@ app.post("/fetch-profile", async (req, res) => {
 
     await browser.close();
 
-    // Agar sab blank hai (LinkedIn ne block kar diya)
+    // Agar scraping se blank aaya
     if (!data.name && !data.headline && !data.about) {
-      console.log("⚠️ Using dummy data because LinkedIn blocked scraping");
-      return res.json({
-        name: "Nandini Atri",
-        headline: "Frontend Developer | React.js | UI/UX Enthusiast",
-        about:
-          "I am a passionate frontend developer with 2 years of experience building modern, responsive web apps using React.js and Tailwind CSS.",
-      });
+      throw new Error("Empty data — using dummy fallback");
     }
 
     res.json(data);
   } catch (err) {
-    console.error("❌ LinkedIn Scraping Error:", err);
+    console.error("⚠️ LinkedIn Fetch Error:", err.message);
 
-    // Dummy data fallback if scraping fails
-    res.json({
+    // 🔹 Dummy Fallback Data
+    return res.json({
       name: "Nandini Atri",
       headline: "Frontend Developer | React.js | UI/UX Enthusiast",
       about:
@@ -297,6 +300,7 @@ app.post("/fetch-profile", async (req, res) => {
     });
   }
 });
+
 
 // ----------------------------------------------------
 // 🔹 ROUTE 2: Analyze LinkedIn data with DeepSeek AI
